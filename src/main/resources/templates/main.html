@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>MyChat</title>
+		<link rel="stylesheet" type="text/css" th:href="@{../css/index.css}">
+		<script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
+		<script th:inline="javascript" src="../js/websocketService.js"></script>
+		<script type="text/javascript" src="../js/main.js"></script>
+	</head>
+	<body>
+		<div class = "main_body">
+			<div class = "body_left">
+				<div class = "left_head">
+					<div class="left_head_down">下线</div>
+				</div>
+				<div class="left_centent_user">
+					<div class = "left_centent_user_top">
+						<div class="left_centent_user_left">
+							<img class="left_centent_user_left_photo" th:src="'./img/'+${user.photo}" style="width: 80px;height: 80px; padding: 10px; border-radius: 30px; margin: 10%;"/>
+						</div>
+						<div class="left_centent_user_right">
+							<div style="width: 100%; height: 50px; line-height: 100px; text-align: center; font-size: 20px;" th:text="${user.name}"></div>
+							<div id="user_state" style="width: 100%; height: 50px; line-height: 50px; text-align: center; font-size: 15px; color: red; font-weight: 800;" >离&nbsp;&nbsp;线</div>
+						</div>
+					</div>
+					<div class="left_centent_user_bottom" th:text="${'&nbsp;&nbsp;&nbsp;&nbsp;'+user.summary}">
+						</div>
+				</div>
+				<button class="list_topic" id="user_online_list">在线好友列表&nbsp;&nbsp;[展开]</button>
+				<div class="left_bottom_list">
+					<ul class="list_ul" id="user_online_list_ul" >
+<!--						<div >-->
+							<li th:each="onlineList,index:${friendList.onlineList}" th:id="${onlineList.userAccount}" class="ul_list">
+								<div class="list_photo">
+									<img th:src="${'./img/'+onlineList.photo}" />
+								</div>
+								<div class="list_center">
+									<div class="list_center_top">
+										<div class="list_center_top_left" th:text="${onlineList.name}"></div>
+										<div class="list_center_top_right" th:text="${onlineList.friendEndTime}"></div>
+										<div class="list_center_top_center">[在线]</div>
+									</div>
+									<div class="list_center_bottom">
+										<div class="list_center_bottom_left" th:text="${onlineList.friendEndText}"></div>
+										<div class="list_center_bottom_right" th:if="${onlineList.unReadNumber} eq 0"  style="background-color: transparent">0</div>
+										<div class="list_center_bottom_right" th:if="${onlineList.unReadNumber} != 0" th:text="${onlineList.unReadNumber}"></div>
+									</div>
+								</div>
+							</li>
+<!--						</div>-->
+
+					</ul>
+					<button class="list_topic" id="user_offline_list">离线好友列表&nbsp;&nbsp;[展开]</button>
+					<ul class="list_ul" id="user_offline_list_ul" >
+<!--						<div th:each="offline,index:${friendList.offlineList}">-->
+							<li th:each="offline,index:${friendList.offlineList}" th:id="${offline.userAccount}" class="ul_list">
+								<div class="list_photo">
+									<img th:src="${'../img/'+offline.photo}" />
+								</div>
+								<div class="list_center">
+									<div class="list_center_top">
+										<div class="list_center_top_left" th:text="${offline.name}"></div>
+										<div class="list_center_top_right" th:text="${offline.friendEndTime}"></div>
+										<div class="list_center_top_center" style="color:red;">[离线]</div>
+									</div>
+									<div class="list_center_bottom">
+										<div class="list_center_bottom_left" th:text="${offline.friendEndText}"></div>
+										<div class="list_center_bottom_right" th:if="${offline.unReadNumber} eq 0" style="background-color: transparent">0</div>
+										<div class="list_center_bottom_right" th:if="${offline.unReadNumber} != 0" th:text="${offline.unReadNumber}"></div>
+									</div>
+								</div>
+							</li>
+<!--						</div>-->
+					</ul>
+				</div>
+			</div>
+			<div class = "body_right">
+				<div class = "right_head">
+					<div class="right_head_friend">
+						<img src="../img/friendRequest.png" style="width: 100%; height: 100%;" />
+						<span class="right_head_number" th:if="${friendRequestList.size()} eq 0">0</span>
+						<span class="right_head_number" th:if="${friendRequestList.size()} != 0" th:text="${friendRequestList.size()}" style="color: white;background-color: red"></span>
+					</div>
+					<div class="right_head_button">查询</div>
+					<input class="rigth_head_input" type="text" placeholder="输入账号或者用户名"/>
+				</div>
+				<div class="body_center_chat">
+					<div class="body_center_chat_result">
+						<div class="body_center_chat_result_top">
+							<div class="body_center_chat_result_top_left"></div>
+							<div class="body_center_chat_result_top_right" data-account="">
+								查看好友信息
+							</div>
+						</div>
+						<div class="body_center_chat_result_body" id="chat_body">
+							<ul class="chat_list">
+
+							</ul>
+						</div>
+					</div>
+					<div class="body_center_chat_inter">
+						<textarea id="inputBody" ></textarea>
+					</div>
+					<div class="body_center_chat_button">
+						<div class="chat_button">
+							发送
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="center_friend_list">
+			<div class="center_friend_list_head">
+				<span class="center_friend_list_head_close"></span>
+			</div>
+			<div class="center_friend_list_body">
+				<ul class="center_friend_list_body_ul" >
+					<li th:each="friend,index:${friendRequestList}" th:id="friend+${friend.userAccount}">
+						<div class="li_left">
+							<img th:src="${'../img/'+friend.photo}"  style="width: 100%; height: 100%;"/>
+						</div>
+						<div class="li_center">
+							<span class="li_center_top" th:text="${friend.name}+(${friend.userAccount})"></span>
+							<span class="li_center_bottom" th:text="${friend.summary}" ></span>
+						</div>
+						<div class="li_right">
+							<img src="../img/add.png" class="li_right_add_photo" th:attr="data-account=${friend.userAccount}">
+							<img src="../img/delete.png" class="li_right_delete_photo" th:attr="data-account=${friend.userAccount}">
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="center_user_list">
+			<div class="center_user_list_head">
+				<span class="center_user_list_head_close"></span>
+			</div>
+			<div class="center_user_list_body">
+				<ul class="center_user_list_body_ul">
+
+				</ul>
+			</div>
+		</div>
+		<div class="center_information_list">
+			<div class="center_information_list_head">
+				<span class="center_information_list_head_close"></span>
+				<img src="./img/userPhoto1.png" class="center_information_list_head_photo" />
+				<span class="center_information_list_head_name">轻轻松松青山哥</span>
+				<span class="center_information_list_head_summary">努力努力在努力,我相信我能在知识的风暴里宛如一粒孤舟</span>
+			</div>
+			<div class="center_information_list_body">
+				<div class="center_body_text_list">
+					<span>账号&ensp;&ensp;1804230903</span>
+					<span>昵称&ensp;&ensp;轻轻松松青山哥</span>
+					<span>性别&ensp;&ensp;男</span>
+				</div>
+				<div class="center_information_delete_botton" data-account="">删&ensp;&ensp;除&ensp;&ensp;好&ensp;&ensp;友</div>
+			</div>
+		</div>
+	</body>
+</html>

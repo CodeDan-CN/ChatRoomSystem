@@ -1,0 +1,20 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wtu.zld.chatroomsystem.mapper.ChatRecordMapper">
+    <resultMap id="ChatRecord" type="cn.wtu.zld.chatroomsystem.entity.ChatRecord">
+        <result property="userAccount" column="user_account"></result>
+        <result property="friendAccount" column="fri_account"></result>
+        <result property="text" column="cr_text"></result>
+        <result property="time" column="cr_time"></result>
+    </resultMap>
+    <select id="getChatRecordToDataBase" parameterType="cn.wtu.zld.chatroomsystem.entity.ChatRecord" resultMap="ChatRecord">
+        select user_account,fri_account,cr_text,cr_time
+        from tb_chatRecord
+        where user_account IN (#{userAccount},#{friendAccount}) AND fri_account IN (#{userAccount},#{friendAccount})
+    </select>
+
+    <insert id="addChatRecordToDataBase" parameterType="cn.wtu.zld.chatroomsystem.entity.ChatRecord">
+        insert into tb_chatRecord(user_account,fri_account,cr_text,cr_time) VALUE(#{userAccount},#{friendAccount},#{text},#{time});
+    </insert>
+</mapper>

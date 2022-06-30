@@ -1,0 +1,25 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wtu.zld.chatroomsystem.mapper.LoginAndSignMapper">
+    <resultMap id="UserMapper" type="User">
+        <id property="userId" column="user_id"></id>
+        <result property="userAccount" column="user_account"></result>
+        <result property="password" column="user_password"></result>
+        <result property="photo" column="user_photo"></result>
+        <result property="name" column="user_name"></result>
+        <result property="sex" column="user_sex"></result>
+        <result property="summary" column="user_summary"></result>
+    </resultMap>
+    <select id="selectUserFromDataBases" parameterType="User" resultMap="UserMapper">
+        Select * from tb_user
+        where user_account= #{userAccount} and user_password=#{password};
+    </select>
+    <insert id="insertUserToDataBases" parameterType="User">
+        insert into tb_user(user_account,user_password,user_photo,user_name,user_sex,user_summary)
+        value (#{userAccount},#{password},#{photo},#{name},#{sex},#{summary});
+    </insert>
+    <select id="getUserFromDataBases" parameterType="java.lang.String" resultMap="UserMapper">
+        select * from tb_user where user_account = #{userAccount};
+    </select>
+</mapper>

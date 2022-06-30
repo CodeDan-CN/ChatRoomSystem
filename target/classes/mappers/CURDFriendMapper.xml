@@ -1,0 +1,92 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wtu.zld.chatroomsystem.mapper.CURDFriendMapper">
+    <resultMap id="FriendMapper" type="cn.wtu.zld.chatroomsystem.entity.Friend">
+        <result property="userAccount" column="user_account"></result>
+        <result property="name" column="user_name"></result>
+        <result property="photo" column="user_photo"></result>
+        <result property="friendEndText" column="fri_endText"></result>
+        <result property="endTime" column="fri_endTime"></result>
+        <result property="endBackTime" column="fri_endBackTime"></result>
+    </resultMap>
+    <resultMap id="UserMapper" type="User">
+        <id property="userAccount" column="user_account"></id>
+        <result property="password" column="user_password"></result>
+        <result property="photo" column="user_photo"></result>
+        <result property="name" column="user_name"></result>
+        <result property="sex" column="user_sex"></result>
+        <result property="summary" column="user_summary"></result>
+    </resultMap>
+    <select id="getFriendListFromDataBase" parameterType="java.lang.String" resultMap="FriendMapper">
+        select tu2.user_account ,tu2.user_name, tu2.user_photo ,tf.fri_endText,tf.fri_endTime,tf.fri_endBackTime
+        from tb_friends tf
+                 join tb_user tu2
+                      on tf.fri_account = tu2.user_account
+        where tf.user_account = #{account}
+    </select>
+
+    <select id="getFriendUnReadNumberFromDataBase" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*)
+        from tb_chatRecord
+        where cr_time &gt; #{endBackTime} and cr_time &lt;= #{endTime} and user_account = #{friendAccount} and fri_account = #{userAccount}
+    </select>
+
+    <select id="getUserListFromDatabase" parameterType="java.lang.String" resultMap="UserMapper">
+        select user_account,user_photo,user_name,user_summary from tb_user
+        where 1=1
+        <if test="_parameter!= null and _parameter!= ''">
+            and user_account LIKE concat('%',#{inputText},'%') or user_name LIKE concat('%',#{inputText},'%');
+        </if>
+    </select>
+
+    <select id="getFriendRequestFromDatabase" parameterType="java.lang.String" resultMap="UserMapper">
+        select u.user_account,u.user_name,u.user_photo,u.user_summary
+        from tb_friend_Request fr
+                 join tb_user u
+                      on u.user_account = fr.user_account
+        where fr.fri_account = #{userAccount};
+    </select>
+
+    <update id="updateFriendMessageAndTimeToDataBase" parameterType="cn.wtu.zld.chatroomsystem.entity.ChatRecord">
+        update tb_friends
+        set fri_endText = #{text},fri_endTime= #{time}
+        where user_account in (#{userAccount},#{friendAccount}) AND fri_account in (#{userAccount},#{friendAccount})
+    </update>
+
+    <select id="getFriendRequestFromDataBase" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*) from tb_friend_Request
+        where user_account = #{userAccount} AND fri_account = #{friendAccount};
+    </select>
+
+    <insert id="addFriendRequestToDataBase" parameterType="java.util.Map">
+        insert into tb_friend_Request value (#{userAccount},#{friendAccount});
+    </insert>
+
+    <delete id="deleteOneFriendRequestToDataBase" parameterType="java.util.Map">
+        DELETE FROM tb_friend_Request
+        where user_account = #{friendAccount} and fri_account =#{userAccount};
+    </delete>
+
+    <delete id="deleteFriendRequestToDataBase" parameterType="java.util.Map">
+        DELETE FROM tb_friend_Request
+        where user_account in (#{userAccount},#{friendAccount}) AND fri_account in (#{userAccount},#{friendAccount})
+    </delete>
+
+    <update id="addFriendToDataBase" parameterType="java.util.Map">
+        insert into tb_friends(user_account,fri_account,fri_endText,fri_endTime,fri_endBackTime)
+        values
+        (#{userAccount},#{friendAccount},#{endText},#{endTime},#{endBackTime}),
+        (#{friendAccount},#{userAccount},#{endText},#{endTime},#{endBackTime})
+    </update>
+    <update id="updateFriendEndBackTimeToDataBase" parameterType="cn.wtu.zld.chatroomsystem.entity.Friend">
+        update tb_friends
+        set fri_endBackTime = #{friendEndBackTime}
+        where user_account = #{userAccount}
+    </update>
+
+    <delete id="deleteFriendToDataBase" parameterType="java.util.Map">
+        DELETE FROM tb_friends
+        WHERE user_account in (#{userAccount},#{friendAccount}) AND fri_account in (#{userAccount},#{friendAccount});
+    </delete>
+</mapper>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>CodeDan通信中心用户注册页面</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--图标-->
+  <link rel="stylesheet" type="text/css" th:href="@{../css/font-awesome.min.css}">
+
+  <!--布局框架-->
+  <link rel="stylesheet" type="text/css" th:href="@{../css/util.css}">
+
+  <!--主要样式-->
+  <link rel="stylesheet" type="text/css" th:href="@{../css/main.css}">
+  <script type="text/javascript" src="../js/jquery-1.12.4.min.js" ></script>
+</head>
+
+<body>
+
+<div class="login">
+  <div class="container-login100">
+    <div class="wrap-login100">
+      <div class="login100-pic js-tilt" data-tilt>
+        <img src="../img/img-01.png" alt="IMG">
+      </div>
+
+      <form class="login100-form validate-form">
+				<span class="login100-form-title">
+					用户注册
+				</span>
+
+        <div class="wrap-input100 validate-input">
+          <input class="input100" type="text" id="userAccount" name="userAccount" placeholder="输入您的学号,纯数字">
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="wrap-input100 validate-input">
+          <input class="input100" type="password" id="password" name="password" placeholder="输入您的密码，最短6个字符，最长20个字符">
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="wrap-input100 validate-input">
+          <input class="input100" type="password" id="password1" name="password1" placeholder="再次输入密码">
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="wrap-input100 validate-input">
+          <input class="input100" type="text" id="name" name="name" placeholder="输入您个人昵称">
+          <span class="focus-input100"></span>
+        </div>
+
+        <div class="container-login100-form-btn">
+          <div class="login100-form-btn" >
+            注册
+          </div>
+        </div>
+        <div class="text-center p-t-136">
+          <a class="txt2" href="/toLogin">
+            已账号？立即登录
+            <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function (){
+    $(".login100-form-btn").click(function (){
+      var userAccount = $("#userAccount").val();
+      var password = $("#password").val();
+      var password1 = $("#password1").val();
+      var name= $("#name").val();
+      if( password == password1 ){
+        $.ajax({
+          url:"sign",
+          type:"post",
+          data:{
+            userAccount:userAccount,
+            password:password,
+            name:name
+          },
+          success:function (res){
+            if( res == "注册成功，即将跳转登录页面" ){
+              alert("注册成功，即将跳转登录页面");
+              window.location.href = "/toLogin";
+            }else{
+              alert("账号已存在或者您输入的账号密码格式有问题，请输入符合条件的账号密码");
+              $("#password").val("");
+            }
+          }
+        })
+      }else{
+        alert("两次密码不正确");
+      }
+    })
+  })
+</script>
+
+</body>
+</html>
